@@ -8,6 +8,7 @@ import { v2 as cloudinary } from 'cloudinary';
 
 import userRoutes from './routes/users.routes';
 import authRoutes from './routes/auth.routes';
+import myHotelsRoutes from './routes/my-hotels.routes';
 
 // Cloudinary
 cloudinary.config({
@@ -62,6 +63,8 @@ if (process.env.NODE_ENV === 'production') {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/my-hotels', myHotelsRoutes);
+
 // Server
 app.listen(7000, () => {
   console.log('listening on http://localhost:7000');
