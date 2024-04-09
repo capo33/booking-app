@@ -1,12 +1,20 @@
 import express, { Request, Response } from 'express';
-import cors from 'cors';
 import 'dotenv/config';
+import cors from 'cors';
+import path from 'path';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import { v2 as cloudinary } from 'cloudinary';
 
 import userRoutes from './routes/users.routes';
 import authRoutes from './routes/auth.routes';
-import path from 'path';
+
+// Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // Database
 mongoose
@@ -34,19 +42,19 @@ app.use(
 );
 
 // Make uploads folder static
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === 'production') {
   const __dirname: string = path.resolve();
-   app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
   // for any route that is not api, redirect to index.html
-  app.get("*", (req: Request, res: Response) =>
-    res.sendFile(path.resolve(__dirname, "../../frontend/dist/index.html"))
+  app.get('*', (req: Request, res: Response) =>
+    res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'))
   );
 } else {
   // Welcome route
-  app.get("/", (req: Request, res: Response) => {
+  app.get('/', (req: Request, res: Response) => {
     res.json({
-      message: "API is running...",
+      message: 'API is running...',
     });
   });
 }
