@@ -26,17 +26,17 @@ type ManageHotelFormProps = {
 
 const ManageHotelForm = ({onSave, isLoading}:ManageHotelFormProps) => {
   const formMethods = useForm<HotelFormData>();
-
-  const { handleSubmit } = formMethods
+  const { handleSubmit } = formMethods // handleSubmit will handle any validation errors and pass the data to the onSubmit function
 
   const onSubmit = handleSubmit((formDataJson: HotelFormData) => {
+    // create a new instance of the form data object and append the form data
     const formData = new FormData();
     formData.append('name', formDataJson.name);
     formData.append('city', formDataJson.city);
     formData.append('country', formDataJson.country);
     formData.append('description', formDataJson.description);
     formData.append('type', formDataJson.type);
-    formData.append('pricePerNight', formDataJson.pricePerNight.toString());
+    formData.append('pricePerNight', formDataJson.pricePerNight.toString()); // convert to string
     formData.append('starRating', formDataJson.starRating.toString());
     formData.append('adultCount', formDataJson.adultCount.toString());
     formData.append('childCount', formDataJson.childCount.toString());
@@ -50,6 +50,8 @@ const ManageHotelForm = ({onSave, isLoading}:ManageHotelFormProps) => {
       formData.append(`facilities[${index}]`, facility)
     })
 
+    // we take imageFiles and convert them to an array and then loop through each image file and append it to the formData
+    // and FileList type does not have a map method so we convert it to an array first using Array.from
     Array.from(formDataJson.imageFiles).forEach((imageFile) => {
       formData.append(`imageFiles`, imageFile);
     })

@@ -3,6 +3,7 @@ import { SignInFormData } from './pages/SignIn';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+// REGISTER
 export const register = async (formData: RegisterFormData) => {
   const response = await fetch(`${API_BASE_URL}/api/users/register`, {
     method: 'POST',
@@ -22,6 +23,7 @@ export const register = async (formData: RegisterFormData) => {
   return responseBody;
 };
 
+// SIGN IN
 export const signIn = async (formData: SignInFormData) => {
   const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',
@@ -40,13 +42,12 @@ export const signIn = async (formData: SignInFormData) => {
   return responseBody;
 };
 
+// VALIDATE TOKEN
 export const validateToken = async () => {
   const response = await fetch(`${API_BASE_URL}/api/auth/validate-token`, {
     method: 'GET',
     credentials: 'include',
   });
-
-  console.log(response.status);
 
   if (!response.ok) {
     throw new Error('Unauthorized');
@@ -56,6 +57,7 @@ export const validateToken = async () => {
   return responseBody;
 };
 
+// SIGN OUT
 export const signOut = async () => {
   const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
     method: 'POST',
@@ -67,13 +69,14 @@ export const signOut = async () => {
   }
 };
 
+// GET MY HOTELS
 export const addMyHotel = async (hotelFormData: FormData) => {
   const response = await fetch(`${API_BASE_URL}/api/my-hotels`, {
     method: 'POST',
     credentials: 'include',
     body: hotelFormData,
   });
-
+  
   if (!response.ok) {
     throw new Error('Failed to add hotel');
   }
