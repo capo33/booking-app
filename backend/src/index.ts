@@ -43,12 +43,22 @@ app.use(
 );
 
 // Make uploads folder static
- app.use(express.static(path.join(__dirname, '../../frontend/dist')));
- 
+if (process.env.NODE_ENV === 'production') {
+  const __dirname: string = path.resolve();
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
   // for any route that is not api, redirect to index.html
-app.get("*", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
-});
+  app.get('*', (req: Request, res: Response) =>
+    res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'))
+  );
+} else {
+  // Welcome route
+  app.get('/', (req: Request, res: Response) => {
+    res.json({
+      message: 'API is running...',
+    });
+  });
+}
 
 // Routes
 app.use('/api/auth', authRoutes);

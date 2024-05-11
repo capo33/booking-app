@@ -1,3 +1,4 @@
+import { HotelType } from './../../backend/src/models/hotels';
 import { RegisterFormData } from './pages/Register';
 import { SignInFormData } from './pages/SignIn';
 
@@ -69,7 +70,7 @@ export const signOut = async () => {
   }
 };
 
-// GET MY HOTELS
+// ADD MY HOTEL
 export const addMyHotel = async (hotelFormData: FormData) => {
   const response = await fetch(`${API_BASE_URL}/api/my-hotels`, {
     method: 'POST',
@@ -83,3 +84,17 @@ export const addMyHotel = async (hotelFormData: FormData) => {
 
   return response.json();
 } 
+
+// GET MY HOTELS
+export const getMyHotels = async (): Promise<HotelType[]> => {
+  const response = await fetch(`${API_BASE_URL}/api/my-hotels`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch hotels');
+  }
+
+  return response.json();
+}
