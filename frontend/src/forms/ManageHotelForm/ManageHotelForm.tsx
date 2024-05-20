@@ -4,6 +4,8 @@ import TypeSection from "./TypeSection";
 import FacilitiesSection from "./FacilitiesSection";
 import GuestSection from "./GuestSection";
 import ImagesSection from "./ImagesSection";
+import { HotelType } from "../../../../backend/src/shared/types";
+import { useEffect } from "react";
 
 export type HotelFormData = {
   name: string;
@@ -14,23 +16,35 @@ export type HotelFormData = {
   pricePerNight: number;
   starRating: number;
   facilities: string[];
-  imageFiles: FileList;
+  imageFiles: FileList; // FileList is a built-in type in the browser, this is used to store the uploaded image files
+  imageUrls: string[]; // this is used to get the uploaded image urls from the server Cloudinary
   adultCount: number;
   childCount: number;
 }
 
 type ManageHotelFormProps = {
+  hotel?: HotelType | undefined;
   onSave: (hotelFormData: FormData) => void;
   isLoading: boolean;
 }
 
-const ManageHotelForm = ({onSave, isLoading}:ManageHotelFormProps) => {
+const ManageHotelForm = ({onSave, isLoading, hotel}:ManageHotelFormProps) => {
   const formMethods = useForm<HotelFormData>();
-  const { handleSubmit } = formMethods // handleSubmit will handle any validation errors and pass the data to the onSubmit function
+  const { handleSubmit, reset } = formMethods // handleSubmit will handle any validation errors and pass the data to the onSubmit function
+
+  useEffect(() => { 
+    reset(hotel)
+  }, [hotel, reset]);
 
   const onSubmit = handleSubmit((formDataJson: HotelFormData) => {
     // create a new instance of the form data object and append the form data
     const formData = new FormData();
+    
+    if (hotel) {
+      formData.append('hotelId', hotel._id)
+    }
+    
+
     formData.append('name', formDataJson.name);
     formData.append('city', formDataJson.city);
     formData.append('country', formDataJson.country);
@@ -49,6 +63,13 @@ const ManageHotelForm = ({onSave, isLoading}:ManageHotelFormProps) => {
     formDataJson.facilities.forEach((facility, index) => {
       formData.append(`facilities[${index}]`, facility)
     })
+
+    // this for edit page so if there are imageUrls we append them to the formData
+    if (formDataJson.imageUrls) {
+      formDataJson.imageUrls.forEach((url, index) => {
+        formData.append(`imageUrls[${index}]`, url)
+      })
+    }
 
     // we take imageFiles and convert them to an array and then loop through each image file and append it to the formData
     // and FileList type does not have a map method so we convert it to an array first using Array.from
