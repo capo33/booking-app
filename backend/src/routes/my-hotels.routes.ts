@@ -23,19 +23,19 @@ router.post(
   '/',
   verifyToken,
   [
-    body("name").notEmpty().withMessage("Name is required"),
-    body("city").notEmpty().withMessage("City is required"),
-    body("country").notEmpty().withMessage("Country is required"),
-    body("description").notEmpty().withMessage("Description is required"),
-    body("type").notEmpty().withMessage("Hotel type is required"),
-    body("pricePerNight")
+    body('name').notEmpty().withMessage('Name is required'),
+    body('city').notEmpty().withMessage('City is required'),
+    body('country').notEmpty().withMessage('Country is required'),
+    body('description').notEmpty().withMessage('Description is required'),
+    body('type').notEmpty().withMessage('Hotel type is required'),
+    body('pricePerNight')
       .notEmpty()
       .isNumeric()
-      .withMessage("Price per night is required and must be a number"),
-    body("facilities")
+      .withMessage('Price per night is required and must be a number'),
+    body('facilities')
       .notEmpty()
       .isArray()
-      .withMessage("Facilities are required"),
+      .withMessage('Facilities are required'),
   ],
   uplpoad.array('imageFiles', 6),
   async (req: Request, res: Response) => {
@@ -59,10 +59,9 @@ router.post(
       newHotel.lastUpdated = new Date();
       newHotel.userId = req.userId;
 
-      
       // 3- save the newHotel object to the database
       const hotel = new Hotel(newHotel);
-      
+
       await hotel.save();
 
       // 4- return a 201 status code with the newHotel object
@@ -71,7 +70,7 @@ router.post(
       console.error('error while creating hotel: ', error);
       res.status(500).json({
         message: 'something went wrong...',
-        error: error
+        error: error,
       });
     }
   }
@@ -81,77 +80,80 @@ router.get('/', verifyToken, async (req: Request, res: Response) => {
   try {
     const hotels = await Hotel.find({ userId: req.userId });
     console.log('hotels: ', hotels);
-    
+
     res.json(hotels);
   } catch (error) {
     console.error('error while fetching hotels: ', error);
     res.status(500).json({
       message: 'error while fetching hotels: ',
-      error: error
+      error: error,
     });
   }
 });
 
 // Path: /api/my-hotels/:id
 router.get('/:id', verifyToken, async (req: Request, res: Response) => {
-  const id = req.params.id
-  
+  const id = req.params.id;
+
   try {
     const hotel = await Hotel.findOne({
       _id: id,
-      userId: req.userId // has to match the logged in user
-    })
-console.log('hotel: ', hotel);
+      userId: req.userId, // has to match the logged in user
+    });
+    console.log('hotel: ', hotel);
 
     res.json(hotel);
   } catch (error) {
     res.status(500).json({
       message: 'error while fetching hotel: ',
-      error: error
+      error: error,
     });
   }
 });
 
 // Path: /api/my-hotels/:hotelId
-router.put('/:hotelId', verifyToken, uplpoad.array('imageFiles'), async (req: Request, res: Response) => {
-  try {
-    
-    const updatedHotel: HotelType = req.body;
-    updatedHotel.lastUpdated = new Date();
-    const hotel = await Hotel.findOneAndUpdate(
-      {
-        _id: req.params.hotelId,
-        userId: req.userId // has to match the logged in user
-      },
+router.put(
+  '/:hotelId',
+  verifyToken,
+  uplpoad.array('imageFiles'),
+  async (req: Request, res: Response) => {
+    try {
+      const updatedHotel: HotelType = req.body;
+      updatedHotel.lastUpdated = new Date();
+      const hotel = await Hotel.findOneAndUpdate(
+        {
+          _id: req.params.hotelId,
+          userId: req.userId, // has to match the logged in user
+        },
         updatedHotel,
         { new: true }
-    );
+      );
 
-    if (!hotel) {
-      return res.status(404).json({
-        message: 'Hotel not found',
+      if (!hotel) {
+        return res.status(404).json({
+          message: 'Hotel not found',
+        });
+      }
+
+      const files = req.files as Express.Multer.File[];
+      const updatedImageUrls = await uploadImages(files);
+
+      hotel.imageUrls = [
+        ...updatedImageUrls,
+        ...(updatedHotel.imageUrls || []),
+      ];
+
+      await hotel.save();
+
+      res.status(200).json(hotel);
+    } catch (error) {
+      res.status(500).json({
+        message: 'something went wrong... ',
+        error: error,
       });
     }
-
-    const files = req.files as Express.Multer.File[];
-    const updatedImageUrls = await uploadImages(files);
-
-    hotel.imageUrls = [
-      ...updatedImageUrls,
-      ...(updatedHotel.imageUrls || [])
-    ];
-
-    await hotel.save();
-
-    res.status(200).json(hotel);
-
-  } catch (error) {
-    res.status(500).json({
-      message: 'something went wrong... ',
-      error: error
-    });
   }
-});
+);
 
 //
 async function uploadImages(imageFiles: Express.Multer.File[]) {
@@ -161,7 +163,7 @@ async function uploadImages(imageFiles: Express.Multer.File[]) {
     const uploadedImage = await cloudinary.v2.uploader.upload(dataURI);
     return uploadedImage.url;
   });
-  
+
   const imageUrls = await Promise.all(uploadPromises);
   return imageUrls;
 }

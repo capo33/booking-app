@@ -1,4 +1,3 @@
-import React from 'react'
 import { useMutation, useQuery } from 'react-query';
 import { useParams } from 'react-router-dom'
 
